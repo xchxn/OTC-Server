@@ -33,7 +33,7 @@ export class DMGateway {
     private readonly authService: AuthService,
   ) {
     this.redisClient = new Redis({
-      host: 'localhost',
+      host: process.env.EC2_URL,
       port: 6379,
     });
     this.redisClient.connect().catch((err) => {
@@ -44,21 +44,6 @@ export class DMGateway {
     this.redisClient.on('error', (err) => {
       console.error('Redis error:', err);
     });
-
-    // this.valkey = new Valkey({
-    //   host: 'otp-cache-q9koki.serverless.apn2.cache.amazonaws.com',
-    //   port: 6380,
-    //   tls: {
-    //   }
-    // });
-    // this.valkey.connect().catch((err) => {
-    //   console.error('Failed to connect to Redis:', err);
-    // });
-
-    // // Redis 클라이언트에 'error' 이벤트 핸들러 추가
-    // this.valkey.on('error', (err) => {
-    //   console.error('Redis error:', err);
-    // });
   }
 
   @SubscribeMessage('dm')

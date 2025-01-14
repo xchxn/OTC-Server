@@ -8,7 +8,7 @@ export class RedisIoAdapter extends IoAdapter {
   private adapterConstructor: ReturnType<typeof createAdapter>;
 
   async connectToRedis(): Promise<void> {
-    const redisHost = 'localhost';
+    const redisHost = process.env.EC2_URL;
     const redisPort = '6379';
     const redisUrl = `redis://${redisHost}:${redisPort}`;
     const pubClient = createClient({ url: redisUrl });

@@ -33,7 +33,7 @@ export class DMGateway {
     private readonly authService: AuthService,
   ) {
     this.redisClient = new Redis({
-      host: process.env.EC2_URL,
+      host: process.env.EC2_IP,
       port: 6379,
     });
     this.redisClient.connect().catch((err) => {

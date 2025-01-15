@@ -5,10 +5,9 @@ import {
   ConnectedSocket,
   WebSocketServer,
 } from '@nestjs/websockets';
-import Redis from 'iovalkey';
+import Redis from 'ioredis';
 import { Server, Socket } from 'socket.io';
 import { AuthService } from 'src/auth/auth.service';
-import Valkey from 'iovalkey';
 
 interface Receiver {
   userId: string;
@@ -27,13 +26,11 @@ export class DMGateway {
   private connectedUsers = new Map<string, string>();
   private redisClient = new Redis();
 
-  // private valkey = new Valkey();
-
   constructor(
     private readonly authService: AuthService,
   ) {
     this.redisClient = new Redis({
-      host: process.env.EC2_IP,
+      host: 'api.objekt.my',
       port: 6379,
     });
     this.redisClient.connect().catch((err) => {

@@ -2,13 +2,12 @@ import { IoAdapter } from '@nestjs/platform-socket.io';
 import { ServerOptions } from 'socket.io';
 import { createAdapter } from '@socket.io/redis-adapter';
 import { createClient } from 'redis';
-import Valkey from 'iovalkey';
 
 export class RedisIoAdapter extends IoAdapter {
   private adapterConstructor: ReturnType<typeof createAdapter>;
 
   async connectToRedis(): Promise<void> {
-    const redisHost = process.env.EC2_IP;
+    const redisHost = 'api.objekt.my';
     const redisPort = '6379';
     const redisUrl = `redis://${redisHost}:${redisPort}`;
     const pubClient = createClient({ url: redisUrl });

@@ -1,4 +1,5 @@
 import {
+  BadRequestException,
   Body,
   Controller,
   Get,
@@ -25,6 +26,14 @@ import {
 } from '@nestjs/swagger';
 import { JwtAuthGuard } from './jwt-auth.guard';
 import { ConfigService } from '@nestjs/config';
+
+interface RefreshTokenDto {
+  refreshToken: string;
+}
+
+interface TokenResponse {
+  accessToken: string;
+}
 
 @ApiTags('인증 API')
 @Controller('auth')
@@ -126,20 +135,23 @@ export class AuthController {
   }
 
   // JWT Token Refresh
-  // @UseGuards(JwtAuthGuard) // Optional: Use this if you require the user to be initially authenticated
   @Post('refresh')
   async refreshAccessToken(
-    @Body() body: any,
-    @Res() res: Response,
-  ) {
+    @Body() body: RefreshTokenDto
+  ): Promise<TokenResponse> {
+    console.log(body);
+    if (!body.refreshToken) {
+      throw new BadRequestException('Refresh token is required');
+    }
+
     try {
-      const newAccessToken = await this.authService.refreshToken(
-        body.refreshToken,
-      );
-      res.json({ accessToken: newAccessToken });
+      const result = await this.authService.refreshToken(body.refreshToken);
+      return result;
     } catch (error) {
-      console.log(body);
-      throw new UnauthorizedException('Failed to refresh access token');
+      if (error instanceof UnauthorizedException) {
+        throw error;
+      }
+      throw new UnauthorizedException('Invalid refresh token');
     }
   }
 }

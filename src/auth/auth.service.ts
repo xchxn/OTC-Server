@@ -44,8 +44,12 @@ export class AuthService {
       where: { username: req.username },
     });
 
-    if (existingUser || existingUsername) {
-      throw new BadRequestException('ID or username already in use.');
+    const existingEmail = await this.authRepository.findOne({
+      where: { email: req.email },
+    });
+
+    if (existingUser || existingUsername || existingEmail) {
+      throw new BadRequestException('ID or username or Email already in use.');
     }
 
     const emailConfirmationToken = randomBytes(16).toString('hex');
@@ -70,10 +74,10 @@ export class AuthService {
 
   async sendEmail(to: string, subject: string, token: string): Promise<any> {
     const mailOptions = {
-      // from: '"Example Team" <example@example.com>',
+      from: '"Obejkt.my" <seokregi@gmail.com>',
       to: to,
       subject: subject,
-      text: 'Please confirm your email for service.',
+      text: 'Please confirm your email for Obejkt.my service.',
       html: `Click here to confirm your email: 
         <a href="${this.configService.get<string>('SERVER_URL')}/auth/confirm/${token}">Confirm Email</a>`,
     };
@@ -105,10 +109,10 @@ export class AuthService {
       .where('id = :id', { id: req.id })
       .getOne();
     if (login === null) {
-      throw new Error('There is no login information, register first please');
+      throw new NotFoundException('There is no login information, register first please');
     }
     if (!login.isEmailConfirmed) {
-      throw new Error(
+      throw new NotFoundException(
         'Email not confirmed. Please check your email to confirm your account.',
       );
     }
@@ -117,10 +121,18 @@ export class AuthService {
       // JWT 인증 토큰 발급 추가
       const payload = { sub: login.id, username: login.username };
 
-      login.accessToken = await this.jwtService.signAsync(payload);
-      login.refreshToken = await this.jwtService.signAsync(payload, {
-        expiresIn: '7d',
-      });
+      login.accessToken = await this.jwtService.signAsync(
+        payload,
+        {
+          secret: this.configService.get<string>('JWT_ACCESS_SECRET'),
+          expiresIn: '30m'  // Access token expires in 15 minutes
+        });
+      login.refreshToken = await this.jwtService.signAsync(
+        payload,
+          {
+          secret: this.configService.get<string>('JWT_REFRESH_SECRET'),
+          expiresIn: '7d'
+        });
 
       await this.authRepository.save(login);
 
@@ -146,8 +158,18 @@ export class AuthService {
 
     if (existingUser) {
       const payload = { sub: profile.id, username: profile.username };
-      const jwtAccessToken = await this.jwtService.signAsync(payload);
-      const jwtRefreshToken = await this.jwtService.signAsync(payload);
+      const jwtAccessToken = await this.jwtService.signAsync(
+        payload,
+        {
+          secret: this.configService.get<string>('JWT_ACCESS_SECRET'),
+          expiresIn: '30m'  // Access token expires in 15 minutes
+        });
+      const jwtRefreshToken = await this.jwtService.signAsync(
+        payload,
+        {
+          secret: this.configService.get<string>('JWT_REFRESH_SECRET'),
+          expiresIn: '7d'
+        });
 
       existingUser.accessToken = jwtAccessToken;
       existingUser.refreshToken = jwtRefreshToken;
@@ -157,8 +179,19 @@ export class AuthService {
     } else {
       // TypeORM으로 DB에 유저 추가
       const payload = { sub: profile.id, username: profile.username };
-      const jwtAccessToken = await this.jwtService.signAsync(payload);
-      const jwtRefreshToken = await this.jwtService.signAsync(payload);
+      const jwtAccessToken = await this.jwtService.signAsync(
+        payload,
+        {
+          secret: this.configService.get<string>('JWT_ACCESS_SECRET'),
+          expiresIn: '30m'  // Access token expires in 15 minutes
+        });
+      const jwtRefreshToken = await this.jwtService.signAsync(
+        payload,
+        {
+          secret: this.configService.get<string>('JWT_REFRESH_SECRET'),
+          expiresIn: '7d'
+        }
+      );
 
       const newUser = await this.authRepository
         .createQueryBuilder()
@@ -191,8 +224,19 @@ export class AuthService {
 
     if (existingUser) {
       const payload = { sub: profile.id, username: profile.username };
-      const jwtAccessToken = await this.jwtService.signAsync(payload);
-      const jwtRefreshToken = await this.jwtService.signAsync(payload);
+      const jwtAccessToken = await this.jwtService.signAsync(
+        payload,
+        {
+          secret: this.configService.get<string>('JWT_ACCESS_SECRET'),
+          expiresIn: '30m'  // Access token expires in 15 minutes
+        });
+      const jwtRefreshToken = await this.jwtService.signAsync(
+        payload,
+        {
+          secret: this.configService.get<string>('JWT_REFRESH_SECRET'),
+          expiresIn: '7d'
+        }
+      );
 
       existingUser.accessToken = jwtAccessToken;
       existingUser.refreshToken = jwtRefreshToken;
@@ -202,8 +246,18 @@ export class AuthService {
     } else {
       // TypeORM으로 DB에 유저 추가
       const payload = { sub: profile.id, username: profile.username };
-      const jwtAccessToken = await this.jwtService.signAsync(payload);
-      const jwtRefreshToken = await this.jwtService.signAsync(payload);
+      const jwtAccessToken = await this.jwtService.signAsync(
+        payload,
+        {
+          secret: this.configService.get<string>('JWT_ACCESS_SECRET'),
+          expiresIn: '30m'  // Access token expires in 15 minutes
+        });
+      const jwtRefreshToken = await this.jwtService.signAsync(
+        payload,
+        {
+          secret: this.configService.get<string>('JWT_REFRESH_SECRET'),
+          expiresIn: '7d'
+        });
 
       const newUser = await this.authRepository
         .createQueryBuilder()
@@ -231,21 +285,55 @@ export class AuthService {
     return this.jwtService.signAsync(payload);
   }
 
-  async refreshToken(refreshToken: string) {
+  async refreshToken(refreshToken: string): Promise<any> {
     try {
-      const decoded = this.jwtService.verify(refreshToken); // 리프레시 토큰 검증
-      console.log('토큰 검사 완료', decoded);
-
-      const user = await this.authRepository.findOne(decoded.id);
-      if (!user) {
-        throw new UnauthorizedException();
+      if (!refreshToken) {
+        throw new UnauthorizedException('Refresh token is required');
       }
-      const payload = { sub: user.id, username: user.username };
-      return {
-        accessToken: this.jwtService.sign(payload), // 새 액세스 토큰 발급
+
+      const decoded = await this.jwtService.verifyAsync(refreshToken, {
+        secret: this.configService.get<string>('JWT_REFRESH_SECRET')
+      });
+
+      const user = await this.authRepository.findOne({
+        where: { id: decoded.sub }
+      });
+
+      if (!user || user.refreshToken !== refreshToken) {
+        throw new UnauthorizedException('Invalid refresh token');
+      }
+
+      const payload = { 
+        sub: user.id, 
+        username: user.username 
       };
-    } catch (e) {
-      throw new UnauthorizedException();
+
+      const newAccessToken = await this.jwtService.signAsync(payload, {
+        secret: this.configService.get<string>('JWT_ACCESS_SECRET'),
+        expiresIn: '30m'  // Access token expires in 15 minutes
+      });
+
+      const newRefreshToken = await this.jwtService.signAsync(payload, {
+        secret: this.configService.get<string>('JWT_REFRESH_SECRET'),
+        expiresIn: '7d'   // Refresh token expires in 7 days
+      });
+
+      user.refreshToken = newRefreshToken;
+      await this.authRepository.save(user);
+
+      return {
+        accessToken: newAccessToken,
+        refreshToken: newRefreshToken
+      };
+
+    } catch (error) {
+      if (error?.name === 'TokenExpiredError') {
+        throw new UnauthorizedException('Refresh token has expired');
+      }
+      if (error?.name === 'JsonWebTokenError') {
+        throw new UnauthorizedException('Invalid refresh token');
+      }
+      throw new UnauthorizedException('Failed to refresh token');
     }
   }
 

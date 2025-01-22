@@ -3,6 +3,7 @@ import { Repository } from 'typeorm';
 import { PostingEntity } from './entities/posting.entity';
 import { ObjektEntity } from './entities/objekt.entity';
 import { AuthEntity } from 'src/auth/entities/auth.entity';
+import { CommentEntity } from './entities/comment.entity';
 @Injectable()
 export class BoardService {
   constructor(
@@ -10,6 +11,8 @@ export class BoardService {
     private postingRepository: Repository<PostingEntity>,
     @Inject('OBJEKT_REPOSITORY')
     private objektRepository: Repository<ObjektEntity>,
+    @Inject('COMMENT_REPOSITORY')
+    private commentRepository: Repository<CommentEntity>,
     // @Inject('AUTH_REPOSITORY')
     // private authRepository: Repository<AuthEntity>,
   ) {}
@@ -29,6 +32,12 @@ export class BoardService {
         'posting.updatedAt',
         'auth.username',
       ])
+      .addSelect((subQuery) => {
+        return subQuery
+        .select('COUNT(*)')
+        .from(CommentEntity, 'comment')
+        .where('comment.postingId = posting.id')
+    },'commentCount')
       .getRawMany();
     // console.log(getPostingList);
     return getPostingList;
@@ -48,6 +57,12 @@ export class BoardService {
         'posting.updatedAt',
         'auth.username',
       ])
+      .addSelect((subQuery) => {
+        return subQuery
+        .select('COUNT(*)')
+        .from(CommentEntity, 'comment')
+        .where('comment.postingId = posting.id')
+    },'commentCount')
       .where('userId = :userId', { userId: body.userId })
       .getRawMany();
     console.log(myPost);
@@ -161,5 +176,87 @@ export class BoardService {
       .getOne();
     // console.log(selectOption);
     return selectOption;
+  }
+
+   // 포스팅의 댓글 가져오기
+   async getComment(body: any): Promise<any> {
+    console.log(body);
+    const getComment = await this.commentRepository
+      .createQueryBuilder('comment')
+      .leftJoinAndSelect(AuthEntity, 'auth', 'auth.id = comment.userId')
+      .select([
+        'comment.id',
+        'comment.posting_id',
+        'comment.userId',
+        'comment.replyTargetCommentId',
+        'comment.content',
+        'comment.createdAt',
+        'comment.updatedAt',
+        'auth.username',
+      ])
+      .where('comment.posting_id = :posting_id', { posting_id: body.posting_id })
+      .getRawMany();
+    console.log(getComment);
+    return getComment;
+  }
+
+  // 포스팅에 댓글 추가
+  async createComment(body: any): Promise<any> {
+    const commentTicket = await this.commentRepository
+      .createQueryBuilder()
+      .insert()
+      .values({
+        posting_id: body.posting_id,
+        userId: body.userId,
+        content: body.content,
+      })
+      .execute();
+    return commentTicket;
+  }
+
+  // 포스팅 댓글에 대댓글 추가
+  async createReply(body: any): Promise<any> {
+    console.log(body);
+    const replyTicket = await this.commentRepository
+      .createQueryBuilder()
+      .insert()
+      .values({
+        posting_id: body.posting_id,
+        userId: body.userId,
+        content: body.content,
+        replyTargetCommentId: body.replyTargetCommentId,
+      })
+      .execute();
+    return replyTicket;
+  }
+
+  // 포스팅 댓글 개수 조회
+  async getCommentCount(body: any): Promise<any> {
+    const commentCount = await this.commentRepository
+      .createQueryBuilder()
+      .where('posting_id = :posting_id', { posting_id: body.posting_id })
+      .getCount();
+    return commentCount;
+  }
+
+  // 포스팅 댓글 삭제
+  async deleteComment(body: any): Promise<any> {
+    const commentDelete = await this.commentRepository
+      .createQueryBuilder()
+      .delete()
+      .where('id = :id', { id: body.comment_id })
+      .execute();
+    return commentDelete;
+  }
+
+  // 포스팅 댓글 수정
+  async updateComment(body: any): Promise<any> {
+    const commentUpdate = await this.commentRepository
+      .createQueryBuilder()
+      .update()
+      .set({ content: body.content })
+      .where('id = :id', { id: body.comment_id })
+      .execute();
+    return commentUpdate;
   }
 }

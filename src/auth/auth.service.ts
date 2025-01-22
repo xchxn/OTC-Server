@@ -119,7 +119,7 @@ export class AuthService {
     const check = await bcrypt.compare(req.password, login.password);
     if (check) {
       // JWT 인증 토큰 발급 추가
-      const payload = { sub: login.id, username: login.username };
+      const payload = { sub: login.id };
 
       login.accessToken = await this.jwtService.signAsync(
         payload,
@@ -157,7 +157,7 @@ export class AuthService {
     });
 
     if (existingUser) {
-      const payload = { sub: profile.id, username: profile.username };
+      const payload = { sub: profile.id };
       const jwtAccessToken = await this.jwtService.signAsync(
         payload,
         {
@@ -178,7 +178,7 @@ export class AuthService {
       return existingUser;
     } else {
       // TypeORM으로 DB에 유저 추가
-      const payload = { sub: profile.id, username: profile.username };
+      const payload = { sub: profile.id };
       const jwtAccessToken = await this.jwtService.signAsync(
         payload,
         {
@@ -192,6 +192,14 @@ export class AuthService {
           expiresIn: '7d'
         }
       );
+
+      // 닉네임 중복 방지
+      const existingUsername = await this.authRepository.findOne({
+        where: { username: profile.username },
+      });
+      if (existingUsername) {
+        profile.username = `${profile.username}_${existingUsername.id}`;
+      }
 
       const newUser = await this.authRepository
         .createQueryBuilder()
@@ -223,7 +231,7 @@ export class AuthService {
     });
 
     if (existingUser) {
-      const payload = { sub: profile.id, username: profile.username };
+      const payload = { sub: profile.id };
       const jwtAccessToken = await this.jwtService.signAsync(
         payload,
         {
@@ -245,7 +253,7 @@ export class AuthService {
       return existingUser;
     } else {
       // TypeORM으로 DB에 유저 추가
-      const payload = { sub: profile.id, username: profile.username };
+      const payload = { sub: profile.id };
       const jwtAccessToken = await this.jwtService.signAsync(
         payload,
         {
@@ -258,6 +266,14 @@ export class AuthService {
           secret: this.configService.get<string>('JWT_REFRESH_SECRET'),
           expiresIn: '7d'
         });
+
+      // 닉네임 중복 방지
+      const existingUsername = await this.authRepository.findOne({
+        where: { username: profile.username },
+      });
+      if (existingUsername) {
+        profile.username = `${profile.username}_${existingUsername.id}`;
+      }
 
       const newUser = await this.authRepository
         .createQueryBuilder()
@@ -303,10 +319,7 @@ export class AuthService {
         throw new UnauthorizedException('Invalid refresh token');
       }
 
-      const payload = { 
-        sub: user.id, 
-        username: user.username 
-      };
+      const payload = { sub: user.id };
 
       const newAccessToken = await this.jwtService.signAsync(payload, {
         secret: this.configService.get<string>('JWT_ACCESS_SECRET'),

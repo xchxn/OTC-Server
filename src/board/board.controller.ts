@@ -69,4 +69,45 @@ export class BoardController {
   getThumbnail(@Body() body: any): any {
     return this.boardService.getThumbnail(body);
   }
+
+   // 포스팅의 댓글 가져오기
+   @Post('comment/get')
+   getComment(@Body() body: any): any {
+     return this.boardService.getComment(body);
+   }
+ 
+   // 포스팅에 댓글 추가
+   @UseGuards(JwtAuthGuard)
+   @Post('comment/create')
+   createComment(@Body() body: any): any {
+     return this.boardService.createComment(body);
+   }
+ 
+   // 포스팅 댓글에 대댓글 추가
+   @UseGuards(JwtAuthGuard)
+   @Post('comment/reply')
+   createReply(@Body() body: any): any {
+     return this.boardService.createReply(body);
+   }
+ 
+   // 포스팅 댓글 개수 조회
+   @UseGuards(JwtAuthGuard)
+   @Post('comment/getCommentCount')
+   getCount(@Body() body: any): any {
+     return this.boardService.getCommentCount(body);
+   }
+ 
+   // 포스팅 댓글 삭제
+   @UseGuards(JwtAuthGuard)
+   @Post('comment/delete')
+   deleteComment(@Body() body: any): any {
+     return this.boardService.deleteComment(body);
+   }
+ 
+   // 포스팅 댓글 수정
+   @UseGuards(JwtAuthGuard)
+   @Post('comment/update')
+   updateComment(@Body() body: any): any {
+     return this.boardService.updateComment(body);
+   }
 }

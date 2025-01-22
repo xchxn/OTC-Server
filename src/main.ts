@@ -14,9 +14,9 @@ async function bootstrap() {
   });
 
   // Redis setup
-  const redisIoAdapter = new RedisIoAdapter(app);
-  await redisIoAdapter.connectToRedis();
-  app.useWebSocketAdapter(redisIoAdapter);
+  // const redisIoAdapter = new RedisIoAdapter(app);
+  // await redisIoAdapter.connectToRedis();
+  // app.useWebSocketAdapter(redisIoAdapter);
 
   // Swagger Config
   const config = new DocumentBuilder()

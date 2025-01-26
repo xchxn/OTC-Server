@@ -151,7 +151,6 @@ export class AuthService {
     kakaoRefreshToken,
   }: any): Promise<any> {
     // 카카오 프로필 정보를 통해 유저 검증 및 DB에 저장하거나 불러옵니다.
-
     const existingUser = await this.authRepository.findOne({
       where: { id: profile.id },
     });
@@ -195,10 +194,10 @@ export class AuthService {
 
       // 닉네임 중복 방지
       const existingUsername = await this.authRepository.findOne({
-        where: { username: profile.username },
+        where: { username: profile.displayName },
       });
       if (existingUsername) {
-        profile.username = `${profile.username}_${existingUsername.id}`;
+        profile.displayName = `${profile.displayName}_${existingUsername.id}`;
       }
 
       const newUser = await this.authRepository
@@ -206,7 +205,7 @@ export class AuthService {
         .insert()
         .values({
           id: profile.id,
-          username: profile.username,
+          username: profile.displayName,
           accessToken: jwtAccessToken,
           refreshToken: jwtRefreshToken,
           kakaoAccessToken: kakaoAccessToken,
@@ -215,7 +214,14 @@ export class AuthService {
         })
         .execute();
       console.log(newUser);
-      return newUser;
+
+      const returnNewUser = {
+        accessToken: jwtAccessToken,
+        refreshToken: jwtRefreshToken,
+        id: profile.id,
+        username: profile.displayName,
+      };
+      return returnNewUser;
     }
   }
 
@@ -269,10 +275,10 @@ export class AuthService {
 
       // 닉네임 중복 방지
       const existingUsername = await this.authRepository.findOne({
-        where: { username: profile.username },
+        where: { username: profile.displayName },
       });
       if (existingUsername) {
-        profile.username = `${profile.username}_${existingUsername.id}`;
+        profile.displayName = `${profile.displayName}_${existingUsername.id}`;
       }
 
       const newUser = await this.authRepository
@@ -288,8 +294,17 @@ export class AuthService {
           isEmailConfirmed: true,
         })
         .execute();
+
       console.log(newUser);
-      return newUser;
+
+      const returnNewUser = {
+        accessToken: jwtAccessToken,
+        refreshToken: jwtRefreshToken,
+        id: profile.id,
+        username: profile.displayName,
+      };
+      
+      return returnNewUser;
     }
   }
 

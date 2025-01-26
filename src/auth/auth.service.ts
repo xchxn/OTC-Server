@@ -197,7 +197,7 @@ export class AuthService {
         where: { username: profile.displayName },
       });
       if (existingUsername) {
-        profile.displayName = `${profile.displayName}_${existingUsername.id}`;
+        profile.displayName = `${profile.displayName}_${new Date().getTime()}`;
       }
 
       const newUser = await this.authRepository
@@ -278,7 +278,7 @@ export class AuthService {
         where: { username: profile.displayName },
       });
       if (existingUsername) {
-        profile.displayName = `${profile.displayName}_${existingUsername.id}`;
+        profile.displayName = `${profile.displayName}_${new Date().getTime()}`;
       }
 
       const newUser = await this.authRepository

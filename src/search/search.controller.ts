@@ -6,13 +6,7 @@ export class SearchController {
   constructor(private readonly searchService: SearchService) {}
 
   @Post('objekt')
-  async searchObjekt(@Body() req: any): Promise<any> {
-    return this.searchService.oneToOneSearch(req);
-  }
-
-  @Post('mtom')
   async manyToMany(@Body() req: any): Promise<any> {
-    console.log(req);
     return this.searchService.manyToMany(req);
   }
 

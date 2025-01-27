@@ -74,12 +74,16 @@ export class AuthService {
 
   async sendEmail(to: string, subject: string, token: string): Promise<any> {
     const mailOptions = {
-      from: '"Obejkt.my" <seokregi@gmail.com>',
+      from: '"objekt.my" <seokregi@gmail.com>',
       to: to,
       subject: subject,
-      text: 'Please confirm your email for Obejkt.my service.',
-      html: `Click here to confirm your email: 
-        <a href="${this.configService.get<string>('SERVER_URL')}/auth/confirm/${token}">Confirm Email</a>`,
+      text: 'Please confirm your email for objekt.my service.',
+      html: `
+        Please confirm your email for objekt.my service.
+        Click here to confirm your email: 
+        <a href="${this.configService.get<string>('SERVER_URL')}/auth/confirm/${token}">Confirm Email</a>
+        
+        `,
     };
 
     const info = await this.transporter.sendMail(mailOptions);

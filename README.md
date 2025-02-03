@@ -1,5 +1,11 @@
 # OTC (Objekt Trade) - Backend
 
+### Origin Repository
+https://github.com/xchxn/OTP
+
+### Swagger Documentation
+https://api.objekt.my/api
+
 ## 프로젝트 소개
 
 이 프로젝트는 Objekt Trade 플랫폼의 백엔드 서버입니다. NestJS 프레임워크를 기반으로 구축되었으며, RESTful API와 WebSocket을 통한 실시간 통신을 지원합니다.
@@ -28,7 +34,7 @@
 
 1. 프로젝트 클론
 ```bash
-git clone [repository-url]
+git clone https://github.com/xchxn/OTC-Server.git
 cd backend
 ```
 

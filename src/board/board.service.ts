@@ -32,12 +32,6 @@ export class BoardService {
         'posting.updatedAt',
         'auth.username',
       ])
-      .addSelect((subQuery) => {
-        return subQuery
-        .select('COUNT(*)')
-        .from(CommentEntity, 'comment')
-        .where('comment.postingId = posting.id')
-    },'commentCount')
       .getRawMany();
     return getPostingList;
   }
@@ -56,12 +50,6 @@ export class BoardService {
         'posting.updatedAt',
         'auth.username',
       ])
-      .addSelect((subQuery) => {
-        return subQuery
-        .select('COUNT(*)')
-        .from(CommentEntity, 'comment')
-        .where('comment.postingId = posting.id')
-    },'commentCount')
       .where('userId = :userId', { userId: body.userId })
       .getRawMany();
     return myPost;

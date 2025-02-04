@@ -88,7 +88,6 @@ export class AuthService {
 
     const info = await this.transporter.sendMail(mailOptions);
 
-    console.log('Message sent: %s', info.messageId);
   }
 
   async confirmEmail(token: string): Promise<void> {
@@ -217,7 +216,6 @@ export class AuthService {
           isEmailConfirmed: true,
         })
         .execute();
-      console.log(newUser);
 
       const returnNewUser = {
         accessToken: jwtAccessToken,
@@ -235,7 +233,6 @@ export class AuthService {
     googleRefreshToken,
   }: any): Promise<any> {
     // 구글 프로필 정보를 통해 유저 검증 및 DB에 저장하거나 불러옵니다.
-    console.log('google Login Profile', profile);
     const existingUser = await this.authRepository.findOne({
       where: { id: profile.id },
     });
@@ -298,8 +295,6 @@ export class AuthService {
           isEmailConfirmed: true,
         })
         .execute();
-
-      console.log(newUser);
 
       const returnNewUser = {
         accessToken: jwtAccessToken,

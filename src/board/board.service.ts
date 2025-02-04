@@ -39,7 +39,6 @@ export class BoardService {
         .where('comment.postingId = posting.id')
     },'commentCount')
       .getRawMany();
-    // console.log(getPostingList);
     return getPostingList;
   }
 
@@ -65,7 +64,6 @@ export class BoardService {
     },'commentCount')
       .where('userId = :userId', { userId: body.userId })
       .getRawMany();
-    console.log(myPost);
     return myPost;
   }
 
@@ -104,7 +102,6 @@ export class BoardService {
 
   // 포스팅 삭제
   async deletePosting(body: any): Promise<any> {
-    console.log(body);
     const deleteTicket = await this.postingRepository
       .createQueryBuilder()
       .delete()
@@ -167,20 +164,17 @@ export class BoardService {
   }
 
   async getThumbnail(body: any): Promise<any> {
-    // console.log(body);
     const selectOption = await this.objektRepository
       .createQueryBuilder('')
       // .select('DISTINCT thumbnailImage', 'thumbnailImage')
       // .select()
       .where('id = :id', { id: body.id })
       .getOne();
-    // console.log(selectOption);
     return selectOption;
   }
 
    // 포스팅의 댓글 가져오기
    async getComment(body: any): Promise<any> {
-    console.log(body);
     const getComment = await this.commentRepository
       .createQueryBuilder('comment')
       .leftJoinAndSelect(AuthEntity, 'auth', 'auth.id = comment.userId')
@@ -196,7 +190,6 @@ export class BoardService {
       ])
       .where('comment.posting_id = :posting_id', { posting_id: body.posting_id })
       .getRawMany();
-    console.log(getComment);
     return getComment;
   }
 
@@ -216,7 +209,6 @@ export class BoardService {
 
   // 포스팅 댓글에 대댓글 추가
   async createReply(body: any): Promise<any> {
-    console.log(body);
     const replyTicket = await this.commentRepository
       .createQueryBuilder()
       .insert()

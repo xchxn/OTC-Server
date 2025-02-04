@@ -39,7 +39,6 @@ export class ManageService {
 
       await Promise.all(requests); // 현재 배치가 완료될 때까지 대기
 
-      console.log(`Processed batch starting with ID: ${i}`);
     }
 
     return true;
@@ -85,9 +84,7 @@ export class ManageService {
       }
     } catch (error) {
       if (error.response && error.response.status === 404) {
-        console.log(`404 error at ${id}, skipping...`);
       } else {
-        console.error(`Error at ${id}:`, error.message);
       }
     }
   }

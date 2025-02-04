@@ -1,10 +1,13 @@
 // src/post/post.entity.ts
+import { AuthEntity } from 'src/auth/entities/auth.entity';
 import {
   Entity,
   Column,
   PrimaryGeneratedColumn,
   CreateDateColumn,
   UpdateDateColumn,
+  ManyToOne,
+  JoinColumn,
 } from 'typeorm';
 
 @Entity('posting')
@@ -17,6 +20,10 @@ export class PostingEntity {
 
   @Column('text')
   content: string;
+
+  @ManyToOne(() => AuthEntity, { onDelete: 'CASCADE' })
+  @JoinColumn({ name: 'userId' })
+  user: AuthEntity;
 
   @Column({ length: 100 })
   userId: string;

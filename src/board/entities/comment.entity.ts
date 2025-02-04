@@ -20,14 +20,16 @@ export class CommentEntity {
   @Column({ length: 100 })
   userId: string;
 
-  @ManyToOne(() => PostingEntity)
-  @JoinColumn({ name: 'postingId' })
+  @ManyToOne(() => PostingEntity, { onDelete: "CASCADE" })
+  @JoinColumn({ name: 'posting_id' })
   posting: PostingEntity;
 
   @Column()
   posting_id: number;
 
-  @ManyToOne(() => CommentEntity)
+  @ManyToOne(() => CommentEntity, (comment) => comment.parentComment, {
+    onDelete: "CASCADE",
+  })
   @JoinColumn({ name: 'replyTargetCommentId' })
   parentComment: CommentEntity;
 

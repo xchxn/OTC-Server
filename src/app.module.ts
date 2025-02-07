@@ -7,12 +7,18 @@ import { BoardModule } from './board/board.module';
 import { SearchModule } from './search/search.module';
 import { ManageModule } from './manage/manage.module';
 import { MypageModule } from './mypage/mypage.module';
+import { APP_GUARD } from '@nestjs/core';
+import { ThrottlerGuard, ThrottlerModule } from '@nestjs/throttler';
 
 @Module({
   imports: [
     ConfigModule.forRoot({
       isGlobal: true,
     }),
+    ThrottlerModule.forRoot([{
+      ttl: 60000,
+      limit: 60,
+    }]),
     DatabaseModule,
     AuthModule,
     BoardModule,
@@ -21,6 +27,11 @@ import { MypageModule } from './mypage/mypage.module';
     MypageModule,
   ],
   controllers: [],
-  providers: [],
+  providers: [
+    {
+      provide: APP_GUARD,
+      useClass: ThrottlerGuard,
+    },
+  ],
 })
 export class AppModule {}

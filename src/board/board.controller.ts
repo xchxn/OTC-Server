@@ -1,8 +1,10 @@
 import { Body, Controller, Get, Post, UseGuards } from '@nestjs/common';
 import { BoardService } from './board.service';
 import { JwtAuthGuard } from 'src/auth/jwt-auth.guard';
+import { SkipThrottle } from '@nestjs/throttler';
 // import { CustomAuthGuard } from 'src/auth/custom-auth.guard';
 
+@SkipThrottle()
 @Controller('board')
 export class BoardController {
   constructor(private readonly boardService: BoardService) {}
@@ -55,16 +57,19 @@ export class BoardController {
     return this.boardService.deletePosting(body.id);
   }
 
+  @SkipThrottle({ default: false })
   @Get('option')
   getSelectOption(): any {
     return this.boardService.getSelectOption();
   }
 
+  @SkipThrottle({ default: false })
   @Post('objekt')
   getTargetObjekt(@Body() body: any): any {
     return this.boardService.getTargetObjekt(body);
   }
 
+  @SkipThrottle({ default: false })
   @Post('thumbnail')
   getThumbnail(@Body() body: any): any {
     return this.boardService.getThumbnail(body);

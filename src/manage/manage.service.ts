@@ -16,20 +16,20 @@ export class ManageService {
   ) {}
 
   private readonly MAX_CONCURRENT_REQUESTS = 100; // 시스템에 맞게 조절하세요
-  private readonly START_ID = 6000001;
-  private readonly END_ID = 6700000;
+  // private readonly START_ID = 6000001;
+  // private readonly END_ID = 6700000;
 
-  async getObjekt(): Promise<boolean> {
+  async getObjekt(body:any): Promise<boolean> {
     const url = `https://api.cosmo.fans/objekt/v1/token`;
     const processedCollectionIds: Set<string> = new Set();
 
     for (
-      let i = this.START_ID;
-      i < this.END_ID;
+      let i = body.START_ID;
+      i < body.END_ID;
       i += this.MAX_CONCURRENT_REQUESTS
     ) {
       const batchIds = Array.from(
-        { length: Math.min(this.MAX_CONCURRENT_REQUESTS, this.END_ID - i) },
+        { length: Math.min(this.MAX_CONCURRENT_REQUESTS, body.END_ID - i) },
         (_, idx) => i + idx,
       );
 

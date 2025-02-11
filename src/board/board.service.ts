@@ -32,6 +32,7 @@ export class BoardService {
         'posting.updatedAt',
         'auth.username',
       ])
+      .orderBy('posting.updatedAt', 'DESC')
       .getRawMany();
     return getPostingList;
   }

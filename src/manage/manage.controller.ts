@@ -5,9 +5,9 @@ import { ManageService } from './manage.service';
 export class ManageController {
   constructor(private readonly manageService: ManageService) {}
 
-  @Get('update')
-  async updateObjekt(): Promise<any> {
-    return this.manageService.getObjekt();
+  @Post('update')
+  async updateObjekt(@Body() body:any): Promise<any> {
+    return this.manageService.getObjekt(body);
   }
   
   @Get('getNotice')

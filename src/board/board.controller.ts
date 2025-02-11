@@ -57,19 +57,19 @@ export class BoardController {
     return this.boardService.deletePosting(body.id);
   }
 
-  @SkipThrottle({ default: false })
+  @SkipThrottle({ default: true })
   @Get('option')
   getSelectOption(): any {
     return this.boardService.getSelectOption();
   }
 
-  @SkipThrottle({ default: false })
+  @SkipThrottle({ default: true })
   @Post('objekt')
   getTargetObjekt(@Body() body: any): any {
     return this.boardService.getTargetObjekt(body);
   }
 
-  @SkipThrottle({ default: false })
+  @SkipThrottle({ default: true })
   @Post('thumbnail')
   getThumbnail(@Body() body: any): any {
     return this.boardService.getThumbnail(body);
